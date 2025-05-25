@@ -1,3 +1,5 @@
+import { db, collection, addDoc, serverTimestamp } from './firebase.js';
+
 const questions = [
   { id: "control", text: "Do you want to retain the ability to change, revoke, or cancel the trust at any time?" },
   { id: "asset_protection", text: "Are you concerned about lawsuits, creditors, or divorce potentially affecting your assets?" },
@@ -33,25 +35,26 @@ function handleAnswer(value) {
   }
 }
 
+function determineTrustType() {
+  const { control, asset_protection, estate_tax, medicaid, gifting, control_goals } = answers;
+  if (asset_protection === "yes" || estate_tax === "yes" || medicaid === "yes" || gifting === "yes") {
+    return "Irrevocable Trust";
+  } else if (control === "yes" && control_goals === "yes") {
+    return "Revocable Living Trust";
+  }
+  return "Further clarification needed – consider speaking with a trust advisor.";
+}
+
 function showResult() {
   app.classList.add("hidden");
   resultBox.classList.remove("hidden");
-
-  const { control, asset_protection, estate_tax, medicaid, gifting, control_goals } = answers;
-  let result;
-
-  if (asset_protection === "yes" || estate_tax === "yes" || medicaid === "yes" || gifting === "yes") {
-    result = "Irrevocable Trust";
-  } else if (control === "yes" && control_goals === "yes") {
-    result = "Revocable Living Trust";
-  } else {
-    result = "Further clarification needed – consider speaking with a trust advisor.";
-  }
-
-  recommendation.textContent = result;
+  const trustType = determineTrustType();
+  recommendation.textContent = trustType;
+  const trustField = document.getElementById("trust_type_field");
+  if (trustField) trustField.value = trustType;
 }
 
-function downloadSummary() {
+window.downloadSummary = function () {
   const summary = questions.map(q => `${q.text}\nAnswer: ${answers[q.id] || "N/A"}\n\n`).join("") +
     `Recommended Trust Type: ${recommendation.textContent}`;
   const blob = new Blob([summary], { type: "text/plain" });
@@ -59,4 +62,25 @@ function downloadSummary() {
   a.href = URL.createObjectURL(blob);
   a.download = "Trust_Type_Recommendation.txt";
   a.click();
-}
+};
+
+window.submitWithFirebase = async function (event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = {
+    name: form.name.value,
+    email: form.email.value,
+    trust_type: form.trust_type.value,
+    message: form.message.value,
+    submitted_at: serverTimestamp()
+  };
+
+  try {
+    await addDoc(collection(db, "trust_submissions"), formData);
+    window.location.href = "thank-you.html";
+  } catch (err) {
+    alert("Error saving submission: " + err.message);
+  }
+};
+
+renderQuestion();
