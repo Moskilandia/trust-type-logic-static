@@ -1,8 +1,15 @@
 import { db, collection, getDocs } from './firebase.js';
+import { auth, onAuthStateChanged, signOut } from './auth.js';
 
 const tbody = document.getElementById('submissions');
+const logoutBtn = document.getElementById('logout');
 
-async function loadSubmissions() {
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  document.getElementById('welcome').textContent = "Welcome, " + user.email;
   const snapshot = await getDocs(collection(db, "trust_submissions"));
   let rows = [];
   snapshot.forEach(doc => {
@@ -17,11 +24,7 @@ async function loadSubmissions() {
     rows.push(row);
   });
   tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="5" class="p-4 text-center text-gray-500">No submissions found.</td></tr>';
-}
-
-function escapeCSV(value) {
-  return `"${(value || '').replace(/"/g, '""')}"`;
-}
+});
 
 window.exportToCSV = async function () {
   const snapshot = await getDocs(collection(db, "trust_submissions"));
@@ -33,7 +36,7 @@ window.exportToCSV = async function () {
       d.submitted_at?.toDate().toLocaleString() || ''
     ]);
   });
-  const csvContent = rows.map(r => r.map(escapeCSV).join(',')).join('\n');
+  const csvContent = rows.map(r => r.map(val => `"${(val || '').replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob([csvContent], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -41,4 +44,8 @@ window.exportToCSV = async function () {
   a.click();
 };
 
-loadSubmissions();
+window.handleLogout = function () {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+};
