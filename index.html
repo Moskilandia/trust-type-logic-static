@@ -3,34 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trust Type Logic Tool</title>
+  <title>Trust Tool</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans p-4">
-  <div class="max-w-xl mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Trust Type Logic Tool</h1>
-    <div id="app" class="space-y-4"></div>
-    <div id="result" class="mt-6 hidden">
-      <h2 class="text-xl font-semibold">Recommended Trust Type:</h2>
-      <p id="recommendation" class="text-green-700 mt-2 text-lg font-medium"></p>
-      <button onclick="downloadSummary()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Download Summary</button>
+  <header class="flex items-center justify-between bg-white shadow px-6 py-4 mb-6">
+    <div class="flex items-center space-x-3">
+      <img src="moskitrust-logo.png" alt="MoskiTrust Logo" class="h-10 w-auto" />
+      <span class="text-xl font-semibold text-blue-700">MoskiTrust</span>
     </div>
-
-    <hr class="my-8">
-
-    <div id="form" class="mt-8">
-      <h2 class="text-xl font-semibold mb-4">Submit Your Information</h2>
-      <form onsubmit="submitWithFirebase(event)" class="space-y-4">
-        <input type="text" name="name" placeholder="Full Name" class="w-full border rounded p-2" required />
-        <input type="email" name="email" placeholder="Email Address" class="w-full border rounded p-2" required />
-        <input type="text" name="trust_type" id="trust_type_field" placeholder="Recommended Trust Type" class="w-full border rounded p-2" readonly />
-        <textarea name="message" placeholder="Additional message..." class="w-full border rounded p-2" rows="4"></textarea>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
-      </form>
-    </div>
-  </div>
-
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="app.js"></script>
+  </header>
+  <main class="max-w-4xl mx-auto">
+    <h1>Home page with form</h1>
+  </main>
+  
 </body>
 </html>
