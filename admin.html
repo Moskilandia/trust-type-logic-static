@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – Trust Submissions</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-900 p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-4">📊 Trust Submissions Dashboard</h1>
+    <button onclick="exportToCSV()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">Export to CSV</button>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Email</th>
+            <th class="p-2 border">Trust Type</th>
+            <th class="p-2 border">Message</th>
+            <th class="p-2 border">Submitted At</th>
+          </tr>
+        </thead>
+        <tbody id="submissions" class="bg-white">
+          <tr><td colspan="5" class="p-4 text-center text-gray-500">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a href="index.html" class="inline-block mt-6 text-blue-600 underline">← Back to the Tool</a>
+  </div>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
