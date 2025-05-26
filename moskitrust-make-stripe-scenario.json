@@ -1,0 +1,44 @@
+{
+  "name": "MoskiTrust PDF Delivery",
+  "flow": [
+    {
+      "module": "stripe.webhook",
+      "name": "Stripe Payment Received",
+      "description": "Triggered by Stripe checkout.session.completed event",
+      "params": {
+        "email": "{{email}}",
+        "name": "{{customer_name}}",
+        "trust_type": "{{client_reference_id}}",
+        "event_type": "checkout.session.completed"
+      }
+    },
+    {
+      "module": "pdfco.generate_pdf",
+      "name": "Generate PDF Summary",
+      "description": "Use HTML template with injected user data",
+      "params": {
+        "html_url": "https://your-vercel-site.vercel.app/moskitrust-pdf-template.html",
+        "placeholders": {
+          "{{client_name}}": "{{customer_name}}",
+          "{{client_email}}": "{{email}}",
+          "{{trust_type}}": "{{client_reference_id}}",
+          "{{message}}": "",
+          "{{submitted_date}}": "{{now}}"
+        }
+      }
+    },
+    {
+      "module": "smtp.send_email",
+      "name": "Send Trust Summary",
+      "description": "Email PDF to user and BCC admin@moskitrust.com",
+      "params": {
+        "from": "admin@moskitrust.com",
+        "to": "{{email}}",
+        "bcc": "admin@moskitrust.com",
+        "subject": "Your MoskiTrust Trust Summary PDF",
+        "body": "Hi {{customer_name}},\n\nThank you for your purchase. Attached is your trust summary PDF.\n\nBest,\nMoskiTrust Team",
+        "attachment_url": "{{pdf_file_url}}"
+      }
+    }
+  ]
+}
