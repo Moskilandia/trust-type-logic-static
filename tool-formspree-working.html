@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trust Tool – MoskiTrust</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <main class="max-w-4xl mx-auto px-4 sm:px-6">
+    <h1 class="text-2xl font-bold mb-4">Trust Type Logic Tool</h1>
+    <div id="app" class="space-y-4"></div>
+
+    <div id="result" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold">Recommended Trust Type:</h2>
+      <p id="recommendation" class="text-green-700 mt-2 text-lg font-medium"></p>
+      <a href="https://buy.stripe.com/28EaEWanc3v03n96de7AI01" class="mt-4 inline-block bg-green-600 text-white px-6 py-3 rounded shadow hover:bg-green-700">
+        Get My Trust Summary PDF – $4.99
+      </a>
+
+      <hr class="my-8">
+
+      <form action="https://formspree.io/f/manogbdn" method="POST" class="space-y-4 mt-6">
+        <input type="text" name="name" placeholder="Full Name" required class="w-full border p-2 rounded" />
+        <input type="email" name="email" placeholder="Email Address" required class="w-full border p-2 rounded" />
+        <input type="text" name="trust_type" id="trust_type_field" readonly class="w-full border p-2 rounded" placeholder="Recommended Trust Type" />
+        <textarea name="message" placeholder="Additional message..." class="w-full border p-2 rounded" rows="4"></textarea>
+        <input type="hidden" name="_redirect" value="thank-you.html" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const questions = [
+      { id: "control", text: "Do you want to retain the ability to revoke the trust?" },
+      { id: "asset_protection", text: "Are you concerned about lawsuits or creditors?" },
+      { id: "estate_tax", text: "Will your estate exceed the federal estate tax exemption?" },
+      { id: "medicaid", text: "Do you plan to apply for Medicaid within 5 years?" },
+      { id: "gifting", text: "Do you want to give away assets permanently?" },
+      { id: "control_goals", text: "Are your goals avoiding probate and maintaining control?" }
+    ];
+
+    let step = 0;
+    const answers = {};
+
+    function renderQuestion() {
+      const app = document.getElementById("app");
+      if (step < questions.length) {
+        const q = questions[step];
+        app.innerHTML = `
+          <p class="text-lg mb-4">${q.text}</p>
+          <div class="flex space-x-4">
+            <button onclick="handleAnswer('yes')" class="px-4 py-2 bg-green-600 text-white rounded">Yes</button>
+            <button onclick="handleAnswer('no')" class="px-4 py-2 bg-red-600 text-white rounded">No</button>
+          </div>
+        `;
+      } else {
+        showResult();
+      }
+    }
+
+    function handleAnswer(value) {
+      answers[questions[step].id] = value;
+      step++;
+      renderQuestion();
+    }
+
+    function determineTrustType() {
+      const { control, asset_protection, estate_tax, medicaid, gifting, control_goals } = answers;
+      if (asset_protection === 'yes' || estate_tax === 'yes' || medicaid === 'yes' || gifting === 'yes') {
+        return "Irrevocable Trust";
+      }
+      if (control === 'yes' && control_goals === 'yes') {
+        return "Revocable Living Trust";
+      }
+      return "Further clarification needed – speak with a trust advisor.";
+    }
+
+    function showResult() {
+      document.getElementById("app").innerHTML = "";
+      const recommendation = determineTrustType();
+      document.getElementById("recommendation").textContent = recommendation;
+      document.getElementById("trust_type_field").value = recommendation;
+      document.getElementById("result").classList.remove("hidden");
+    }
+
+    window.handleAnswer = handleAnswer;
+    renderQuestion();
+  </script>
+</body>
+</html>
