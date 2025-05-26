@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MoskiTrust Trust Recommendation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      height: 50px;
+      margin-right: 20px;
+    }
+    h1 {
+      color: #2b6cb0;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+    .value {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="moskitrust-logo.png" class="logo" alt="MoskiTrust Logo" />
+    <h1>MoskiTrust: Trust Recommendation Summary</h1>
+  </div>
+
+  <div class="section">
+    <div class="label">Client Name:</div>
+    <div class="value">{{client_name}}</div>
+
+    <div class="label">Email Address:</div>
+    <div class="value">{{client_email}}</div>
+
+    <div class="label">Trust Type Recommendation:</div>
+    <div class="value">{{trust_type}}</div>
+
+    <div class="label">Additional Message:</div>
+    <div class="value">{{message}}</div>
+
+    <div class="label">Submission Date:</div>
+    <div class="value">{{submitted_date}}</div>
+  </div>
+</body>
+</html>
