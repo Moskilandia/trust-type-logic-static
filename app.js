@@ -1,85 +1,90 @@
-import { db, collection, addDoc, serverTimestamp } from './firebase.js';
+// Logic for handling form + submission
+import { db, collection, addDoc, serverTimestamp } from "./firebase.js";
 
 const questions = [
-  { id: "control", text: "Do you want to retain the ability to change, revoke, or cancel the trust at any time?" },
-  { id: "asset_protection", text: "Are you concerned about lawsuits, creditors, or divorce potentially affecting your assets?" },
-  { id: "estate_tax", text: "Is your estate projected to exceed the federal estate tax exemption (~$13.61M)?" },
-  { id: "medicaid", text: "Do you plan to apply for Medicaid/Medi-Cal long-term care within 5 years?" },
-  { id: "gifting", text: "Do you want to give away assets permanently to reduce your taxable estate?" },
-  { id: "control_goals", text: "Are your main goals avoiding probate, maintaining privacy, and retaining control over your assets?" }
+  { id: "control", text: "Do you want to retain the ability to revoke the trust?" },
+  { id: "asset_protection", text: "Are you concerned about lawsuits or creditors?" },
+  { id: "estate_tax", text: "Will your estate exceed the federal estate tax exemption?" },
+  { id: "medicaid", text: "Do you plan to apply for Medicaid within 5 years?" },
+  { id: "gifting", text: "Do you want to give away assets permanently?" },
+  { id: "control_goals", text: "Are your goals avoiding probate and maintaining control?" }
 ];
 
 let step = 0;
 const answers = {};
-const app = document.getElementById("app");
-const resultBox = document.getElementById("result");
-const recommendation = document.getElementById("recommendation");
 
 function renderQuestion() {
-  app.innerHTML = `
-    <p class="text-lg">${questions[step].text}</p>
-    <div class="space-x-4">
-      <button onclick="handleAnswer('yes')" class="px-4 py-2 bg-green-600 text-white rounded">Yes</button>
-      <button onclick="handleAnswer('no')" class="px-4 py-2 bg-red-600 text-white rounded">No</button>
-    </div>
-  `;
-}
-
-function handleAnswer(value) {
-  answers[questions[step].id] = value;
-  step++;
+  const app = document.getElementById("app");
   if (step < questions.length) {
-    renderQuestion();
+    const q = questions[step];
+    app.innerHTML = `
+      <p class="text-lg mb-4">${q.text}</p>
+      <div class="flex space-x-4">
+        <button onclick="handleAnswer('yes')" class="px-4 py-2 bg-green-600 text-white rounded">Yes</button>
+        <button onclick="handleAnswer('no')" class="px-4 py-2 bg-red-600 text-white rounded">No</button>
+      </div>
+    `;
   } else {
     showResult();
   }
 }
 
+function handleAnswer(value) {
+  answers[questions[step].id] = value;
+  step++;
+  renderQuestion();
+}
+
 function determineTrustType() {
   const { control, asset_protection, estate_tax, medicaid, gifting, control_goals } = answers;
-  if (asset_protection === "yes" || estate_tax === "yes" || medicaid === "yes" || gifting === "yes") {
+  if (asset_protection === 'yes' || estate_tax === 'yes' || medicaid === 'yes' || gifting === 'yes') {
     return "Irrevocable Trust";
-  } else if (control === "yes" && control_goals === "yes") {
+  }
+  if (control === 'yes' && control_goals === 'yes') {
     return "Revocable Living Trust";
   }
-  return "Further clarification needed – consider speaking with a trust advisor.";
+  return "Further clarification needed – speak with a trust advisor.";
 }
 
 function showResult() {
-  app.classList.add("hidden");
-  resultBox.classList.remove("hidden");
-  const trustType = determineTrustType();
-  recommendation.textContent = trustType;
-  const trustField = document.getElementById("trust_type_field");
-  if (trustField) trustField.value = trustType;
+  document.getElementById("app").innerHTML = "";
+  const resultDiv = document.getElementById("result");
+  const recommendation = determineTrustType();
+  document.getElementById("recommendation").textContent = recommendation;
+  document.getElementById("trust_type_field").value = recommendation;
+  resultDiv.classList.remove("hidden");
 }
 
-window.downloadSummary = function () {
-  const summary = questions.map(q => `${q.text}\nAnswer: ${answers[q.id] || "N/A"}\n\n`).join("") +
-    `Recommended Trust Type: ${recommendation.textContent}`;
-  const blob = new Blob([summary], { type: "text/plain" });
-  const a = document.createElement("a");
+window.handleAnswer = handleAnswer;
+
+window.downloadSummary = () => {
+  const blob = new Blob([
+    `Trust Recommendation Summary\n\n` +
+    questions.map(q => `${q.text}\nAnswer: ${answers[q.id] || 'N/A'}\n\n`).join('') +
+    `Recommended Trust Type: ${determineTrustType()}`
+  ], { type: 'text/plain' });
+  const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = "Trust_Type_Recommendation.txt";
+  a.download = 'Trust_Recommendation.txt';
   a.click();
+  URL.revokeObjectURL(a.href);
 };
 
-window.submitWithFirebase = async function (event) {
-  event.preventDefault();
-  const form = event.target;
-  const formData = {
+window.submitWithFirebase = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
     name: form.name.value,
     email: form.email.value,
     trust_type: form.trust_type.value,
     message: form.message.value,
-    submitted_at: serverTimestamp()
+    timestamp: serverTimestamp()
   };
-
   try {
-    await addDoc(collection(db, "trust_submissions"), formData);
+    await addDoc(collection(db, "submissions"), payload);
     window.location.href = "thank-you.html";
   } catch (err) {
-    alert("Error saving submission: " + err.message);
+    alert("Error submitting: " + err.message);
   }
 };
 
