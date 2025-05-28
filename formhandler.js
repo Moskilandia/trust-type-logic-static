@@ -6,45 +6,67 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    // Collect form data
     const formData = new FormData(form);
     const formEntries = Object.fromEntries(formData.entries());
 
-    // Generate a complete trust document with notary, witnesses, and legal disclaimer
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString();
+    const day = today.getDate();
+    const month = today.toLocaleString('default', { month: 'long' });
+    const year = today.getFullYear();
+
+    const fullName = `${formEntries["first_name"] || "[First Name]"} ${formEntries["last_name"] || "[Last Name]"}`;
+    const lastName = formEntries["last_name"] || "[Last Name]";
+
     const docContent = `
-MoskiTrust - Living Trust Document
+SAMPLE REVOCABLE LIVING TRUST (Excerpt)
+${fullName} Revocable Living Trust
+Established on ${formattedDate}
 
-This Living Trust is made on ${new Date().toLocaleDateString()} by ${formEntries["first_name"] || "[First Name]"} ${formEntries["last_name"] || "[Last Name]"}, residing at ${formEntries["address"] || "[Address]"}.
+Article I: Identification
+This Trust Agreement is made on this ${day} of ${month}, ${year}, by and between ${fullName}, residing at ${formEntries["address"] || "[Address]"}, hereinafter referred to as “Grantor” and “Trustee.”
 
-1. Trust Name: ${formEntries["trust_name"] || "[Trust Name]"}
-2. Trustee: ${formEntries["trustee_name"] || "[Trustee Name]"}
-3. Successor Trustee: ${formEntries["successor_trustee"] || "[Successor Trustee]"}
-4. Beneficiaries: ${formEntries["beneficiaries"] || "[Beneficiaries]"}
-5. Assets to be included: ${formEntries["assets"] || "[Assets]"}
+Article II: Name of Trust
+This trust shall be known as the "${lastName} Revocable Living Trust."
 
-Additional Instructions:
-${formEntries["instructions"] || "[Instructions]"}
+Article III: Revocation and Amendment
+The Grantor reserves the right to revoke or amend this trust at any time during their lifetime.
 
-Notary Acknowledgment:
-State of ____________  )
-County of __________ )
-On this ____ day of ___________, 20___, before me, a Notary Public, personally appeared ___________________________, who proved to me on the basis of satisfactory evidence to be the person whose name is subscribed to this instrument, and acknowledged to me that they executed the same in their authorized capacity.
+Article IV: Trust Property
+The initial property placed into this trust includes:
 
-Signature of Notary: __________________________
-Seal: [Notary Seal Here]
+${formEntries["assets"] || "[List assets with titles, values, and descriptions]"}
 
-Witnesses:
-1. ____________________________   Date: __________
-2. ____________________________   Date: __________
+Article V: Distributions During Lifetime
+The Grantor shall have full access to and use of all trust property during their lifetime.
 
-Legal Disclaimer:
-This document is provided by MoskiTrust for general informational purposes only. It is not a substitute for legal advice. Please consult a qualified estate planning attorney before executing or filing any legal documents.
+Article VI: Disposition Upon Death
+Upon the Grantor’s death, the Trustee shall distribute the trust property as follows:
 
-Signature of Grantor: ____________________________
-Date: ________________________________
+${formEntries["beneficiaries"] || "[Name of Beneficiary]: [Percent or itemized property]"}
+
+Article VII: Successor Trustee
+In the event that ${formEntries["first_name"] || "[Client]"} is unable or unwilling to serve as Trustee, ${formEntries["successor_trustee"] || "[Successor Trustee Name]"} shall serve.
+
+Article VIII: Powers of Trustee
+The Trustee shall have the power to:
+- Buy, sell, lease, or mortgage trust assets
+- Invest in real estate, securities, and mutual funds
+- Make discretionary distributions for health, education, support, or maintenance (HEMS)
+
+Article IX: Spendthrift Clause
+No beneficiary shall have the right to assign, transfer, or encumber their interest in the trust.
+
+Article X: Governing Law
+This Trust shall be governed by the laws of the State of ${formEntries["state"] || "[Your State]"}.
+
+IN WITNESS WHEREOF, the Grantor has executed this Revocable Living Trust as of the date above.
+
+${fullName}, Grantor & Trustee
+
+[Witness Name], Notary Public
 `;
 
-    // Create and download PDF using html2pdf
     const pdfBlob = new Blob([docContent], { type: "application/pdf" });
     const pdfUrl = URL.createObjectURL(pdfBlob);
 
@@ -54,9 +76,6 @@ Date: ________________________________
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    // Optional redirect
-    // window.location.href = "thankyou.html";
   });
 
   if (downloadBtn) {
