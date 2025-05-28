@@ -1,0 +1,21 @@
+Trust Recommendation Summary
+
+Do you want to retain the ability to revoke the trust?
+Answer: yes
+
+Are you concerned about lawsuits or creditors?
+Answer: no
+
+Will your estate exceed the federal estate tax exemption?
+Answer: yes
+
+Do you plan to apply for Medicaid within 5 years?
+Answer: no
+
+Do you want to give away assets permanently?
+Answer: yes
+
+Are your goals avoiding probate and maintaining control?
+Answer: no
+
+Recommended Trust Type: Irrevocable Trust
