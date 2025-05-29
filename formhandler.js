@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("loginForm");
   const trustForm = document.getElementById("trustForm");
@@ -9,11 +8,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const deleteBtn = document.getElementById("deleteSessionBtn");
   const redownloadBtn = document.getElementById("redownloadBtn");
   const successMessage = document.getElementById("successMessage");
+  const downloadConfirm = document.getElementById("downloadConfirm");
 
   if (loginForm && trustForm) {
     trustForm.style.display = "none";
     dashboard.style.display = "none";
-    if (successMessage) successMessage.style.display = "none";
+    if (successMessage) {
+      successMessage.style.display = "none";
+      successMessage.style.transition = "opacity 0.5s ease";
+    }
+    if (downloadConfirm) {
+      downloadConfirm.style.display = "none";
+      downloadConfirm.style.transition = "opacity 0.5s ease";
+    }
 
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -27,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (successMessage) {
         successMessage.textContent = `Welcome ${loginEntries.name}, please complete your trust form.`;
         successMessage.style.display = "block";
+        successMessage.style.opacity = "1";
       }
     });
   }
@@ -59,7 +67,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const trustData = JSON.parse(sessionStorage.getItem("trustFormData") || '{}');
 
       document.getElementById("dashboardName").textContent = clientName;
-      document.getElementById("dashboardSummary").textContent = JSON.stringify(trustData, null, 2);
+      const formattedSummary = Object.entries(trustData).map(([key, value]) => `${key}: ${value}`).join("\n");
+      document.getElementById("dashboardSummary").textContent = formattedSummary;
     });
   }
 
@@ -80,6 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (redownloadBtn) {
     redownloadBtn.addEventListener("click", function () {
+      if (downloadConfirm) {
+        downloadConfirm.textContent = "Your document is downloading...";
+        downloadConfirm.style.display = "block";
+        downloadConfirm.style.opacity = "1";
+      }
       window.location.href = "access.html";
     });
   }
