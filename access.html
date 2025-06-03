@@ -1,11 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Trust Document</title>
-  <script src="trustDocument.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoskiTrust - Your Trust Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    .message {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+  </style>
 </head>
 <body>
-  <p>Generating your Trust Document...</p>
+  <div class="message">Generating your trust document. Please wait...</div>
+
+  <script>
+    window.onload = async function () {
+      const { jsPDF } = window.jspdf;
+      const trustData = JSON.parse(sessionStorage.getItem("trustFormData") || "{}");
+
+      const doc = new jsPDF();
+
+      const trustText = `
+${trustData.clientName} Revocable Living Trust
+Established on ${new Date().toLocaleDateString()}
+
+Article I: Identification
+This Trust Agreement is made by ${trustData.clientName}, residing at [Address], hereinafter referred to as "Grantor" and "Trustee."
+
+Article II: Name of Trust
+This trust shall be known as the "${trustData.trustName} Revocable Living Trust."
+
+Article III: Revocation and Amendment
+The Grantor reserves the right to revoke or amend this trust at any time during their lifetime.
+
+Article IV: Trust Property
+The initial property placed into this trust includes:
+${trustData.assets || "[Assets not specified]"}
+
+Article V: Distributions During Lifetime
+The Grantor shall have full access to and use of all trust property during their lifetime.
+
+Article VI: Disposition Upon Death
+Upon the Grantor's death, the Trustee shall distribute the trust property as follows:
+${trustData.beneficiary || "[Beneficiary not specified]"}: [100% of estate or specified items]
+
+Article VII: Successor Trustee
+In the event that ${trustData.clientName} is unable or unwilling to serve as Trustee, ${trustData.successor || "[Successor Trustee Name]"} shall serve.
+
+Article VIII: Powers of Trustee
+The Trustee shall have the power to:
+- Buy, sell, lease, or mortgage trust assets
+- Invest in real estate, securities, and mutual funds
+- Make discretionary distributions for health, education, support, or maintenance (HEMS)
+
+Article IX: Spendthrift Clause
+No beneficiary shall have the right to assign, transfer, or encumber their interest in the trust.
+
+Article X: Governing Law
+This Trust shall be governed by the laws of the State of ${trustData.state || "[State]"}.
+
+IN WITNESS WHEREOF, the Grantor has executed this Revocable Living Trust as of the date above.
+
+${trustData.clientName}, Grantor & Trustee
+
+[Witness Name], Notary Public
+      `;
+
+      const lines = doc.splitTextToSize(trustText, 180);
+      doc.text(lines, 10, 10);
+      doc.save(`${trustData.clientName?.replace(/\s/g, "_") || "MoskiTrust"}_Trust_Document.pdf`);
+    };
+  </script>
 </body>
 </html>
