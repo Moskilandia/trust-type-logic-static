@@ -1,66 +1,88 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>Download Trust</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <title>Download Trust Document</title>
 </head>
 <body>
-  <h2>Your Trust Document is Being Prepared...</h2>
+  <h2>Preparing Your Trust Document...</h2>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    window.onload = () => {
+    window.onload = async () => {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const data = JSON.parse(sessionStorage.getItem("trustFormData") || "{}");
+      const formData = JSON.parse(sessionStorage.getItem("trustFormData") || "{}");
+      const name = formData.clientName || "Client";
+      const email = formData.clientEmail || "";
 
+      // Assemble trust document content
       const content = `
-${data.firstName} ${data.lastName} ${data.trustType} Living Trust
+${name} Revocable Living Trust
 Established on ${new Date().toLocaleDateString()}
 
 Article I: Identification
-This Trust Agreement is made by ${data.firstName} ${data.lastName}, residing at ${data.address}, ${data.cityStateZip}, hereinafter referred to as “Grantor” and “Trustee.”
+This Trust Agreement is made on this day by and between ${name}, residing at ${formData.address || "[Address]"}, hereinafter referred to as “Grantor” and “Trustee.”
 
 Article II: Name of Trust
-This trust shall be known as the "${data.trustName} ${data.trustType} Living Trust."
+This trust shall be known as the "${name.split(" ").slice(-1)} Revocable Living Trust."
 
-Article III: Revocation and Amendment
-The Grantor reserves the right to revoke or amend this trust at any time during their lifetime.
+Article III: ${formData.trustType === "Irrevocable" ? "Irrevocable Trust Terms" : "Revocation and Amendment"}
+${formData.trustType === "Irrevocable"
+        ? "This trust is irrevocable and may not be amended or revoked by the Grantor."
+        : "The Grantor reserves the right to revoke or amend this trust at any time during their lifetime."}
 
 Article IV: Trust Property
-The initial property placed into this trust includes:
-${data.assets}
+${formData.assets || "[List of assets]"}
 
 Article V: Distributions During Lifetime
 The Grantor shall have full access to and use of all trust property during their lifetime.
 
 Article VI: Disposition Upon Death
-Upon the Grantor’s death, the Trustee shall distribute the trust property as follows:
-Primary Beneficiary: ${data.beneficiary}
-Contingent Beneficiary: ${data.altBeneficiary || "[None specified]"}
+${formData.beneficiary || "[Beneficiary]"}: 100%
 
 Article VII: Successor Trustee
-In the event that ${data.firstName} is unable or unwilling to serve as Trustee, ${data.successor} shall serve.
+If the Grantor is unable or unwilling to serve, ${formData.successor || "[Successor Trustee]"} shall serve.
 
-Article VIII: Powers of Trustee
-- Buy, sell, lease, or mortgage trust assets
-- Invest in real estate, securities, and mutual funds
-- Make discretionary distributions for health, education, support, or maintenance (HEMS)
+Article VIII: Trustee Powers
+Trustee may buy, sell, lease assets, and make HEMS-based discretionary distributions.
 
 Article IX: Spendthrift Clause
-No beneficiary shall have the right to assign, transfer, or encumber their interest in the trust.
+No beneficiary may assign or encumber their interest in the trust.
 
 Article X: Governing Law
-This Trust shall be governed by the laws of the State of ${data.state}.
+This Trust shall be governed by the laws of ${formData.state || "[State]"}.
 
-IN WITNESS WHEREOF, the Grantor has executed this Trust as of the date above.
+Signed: ${name}
+`;
 
-${data.firstName} ${data.lastName}, Grantor & Trustee
-[Witness Name], Notary Public
-      `;
+      // Generate PDF
+      const pdf = new jsPDF();
+      pdf.setFontSize(11);
+      pdf.text(content, 10, 10);
+      const pdfBlob = pdf.output("blob");
 
-      doc.text(doc.splitTextToSize(content, 180), 10, 10);
-      doc.save(`${data.lastName || "MoskiTrust"}_Trust_Document.pdf`);
+      // Create temporary link to download
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = pdfUrl;
+      a.download = `${name.replace(/\s+/g, "_")}_Trust_Document.pdf`;
+      a.click();
+
+      // Send Formspree email with download link
+      const form = new FormData();
+      form.append("name", name);
+      form.append("email", email);
+      form.append("message", `Your trust document has been generated. You can download it here: ${pdfUrl}`);
+
+      fetch("https://formspree.io/f/manogbdn", {
+        method: "POST",
+        body: form,
+        headers: { Accept: "application/json" },
+      }).then(() => {
+        alert("Document generated and email sent!");
+      }).catch(() => {
+        alert("Failed to send email.");
+      });
     };
   </script>
 </body>
