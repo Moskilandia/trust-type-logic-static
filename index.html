@@ -4,77 +4,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MoskiTrust</title>
+  <title>MoskiTrust | Create Your Trust</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-    }
-    form, #dashboard {
-      margin-top: 1rem;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      border-radius: 8px;
-      max-width: 500px;
-    }
-    input, button {
-      display: block;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      width: 100%;
-    }
-    #successMessage, #downloadConfirm {
-      margin-top: 1rem;
-      font-weight: bold;
-      padding: 1rem;
-      border-radius: 5px;
-    }
-    #successMessage {
-      background-color: #e0f7e9;
-      color: #2e7d32;
-    }
-    #downloadConfirm {
-      background-color: #e3f2fd;
-      color: #1565c0;
-    }
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f4f4f4; }
+    form { background: #fff; padding: 1rem; border-radius: 5px; max-width: 600px; margin: auto; }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 1rem; }
+    input, select, textarea { width: 100%; padding: 0.5rem; margin-top: 0.2rem; }
+    button { margin-top: 1rem; padding: 0.7rem; width: 100%; background: #0044cc; color: #fff; border: none; }
   </style>
 </head>
 <body>
-
-  <h1>MoskiTrust: Create Your Trust</h1>
-
-  <form id="loginForm">
-    <h2>Step 1: Login</h2>
-    <input type="text" name="name" placeholder="Full Name" required />
-    <input type="email" name="email" placeholder="Email" required />
-    <button type="submit">Login</button>
+  <form id="trustForm">
+    <h2>Create Your Trust Document</h2>
+    <label>First Name <input name="firstName" required></label>
+    <label>Last Name <input name="lastName" required></label>
+    <label>Email <input name="email" type="email" required></label>
+    <label>Street Address <input name="address" required></label>
+    <label>City, State, ZIP <input name="cityStateZip" required></label>
+    <label>Trust Name <input name="trustName" required></label>
+    <label>Governing State <input name="state" required></label>
+    <label>Trust Type
+      <select name="trustType" required>
+        <option value="Revocable">Revocable</option>
+        <option value="Irrevocable">Irrevocable</option>
+      </select>
+    </label>
+    <label>Successor Trustee Name <input name="successor" required></label>
+    <label>Assets Description <textarea name="assets" required></textarea></label>
+    <label>Primary Beneficiary <input name="beneficiary" required></label>
+    <label>Contingent Beneficiary <input name="altBeneficiary"></label>
+    <button type="submit">Continue to Payment</button>
   </form>
 
-  <div id="successMessage" style="display:none;"></div>
-
-  <form id="trustForm" style="display:none;">
-    <h2>Step 2: Trust Questionnaire</h2>
-    <input type="text" name="trustName" placeholder="Name of Trust" required />
-    <input type="text" name="beneficiary" placeholder="Primary Beneficiary" required />
-    <input type="text" name="assets" placeholder="List of Assets" required />
-    <input type="text" name="successor" placeholder="Successor Trustee Name" required />
-    <input type="text" name="state" placeholder="Governing State" required />
-    <button type="submit">Submit Trust</button>
-  </form>
-
-  <button id="downloadBtn">Download</button>
-  <div id="downloadConfirm" style="display:none;"></div>
-
-  <button id="viewDashboardBtn">View Dashboard</button>
-
-  <div id="dashboard" style="display:none;">
-    <h2>Welcome, <span id="dashboardName"></span></h2>
-    <pre id="dashboardSummary"></pre>
-    <button id="editInfoBtn">Edit Info</button>
-    <button id="deleteSessionBtn">Delete Session</button>
-    <button id="redownloadBtn">Download Trust Again</button>
-  </div>
-
-  <script src="formhandler.js"></script>
+  <script>
+    document.getElementById("trustForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      sessionStorage.setItem("trustFormData", JSON.stringify(data));
+      window.location.href = "https://buy.stripe.com/28EaEWanc3v03n96de7AI01";
+    });
+  </script>
 </body>
 </html>
